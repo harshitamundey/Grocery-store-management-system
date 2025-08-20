@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grocery Store Management System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #f1f5f9 0%, #dbeafe 100%);
+        }
+        .content-section {
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .loading {
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #3498db;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <div class="bg-white shadow-sm px-6 py-3 flex justify-between items-center">
+        <h1 class="text-xl font-semibold text-gray-800" id="page-title">Dashboard</h1>
+        <div class="text-gray-600 font-medium">2025</div>
+    </div>
+
+    <div class="flex">
+        <!-- Sidebar -->
+        <div class="w-64 bg-slate-800 min-h-screen p-4">
+            <div class="flex items-center space-x-3 mb-8">
+                <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center">
+                    <span class="text-white font-semibold">HM</span>
+                </div>
+                <div>
+                    <h3 class="text-white font-medium">Harshita Mundey</h3>
+                    <p class="text-slate-400 text-sm">mundeyharshita@gmail.com</p>
+                </div>
+            </div>
+
+            <nav class="space-y-2">
+                <button onclick="showContent('dashboard')" class="menu-item w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors bg-slate-700 text-white">
+                    <i class="fas fa-chart-bar w-5"></i>
+                    <span>Dashboard</span>
+                </button>
+                <button onclick="showContent('inventory')" class="menu-item w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors text-slate-300 hover:bg-slate-700 hover:text-white">
+                    <i class="fas fa-box w-5"></i>
+                    <span>Inventory</span>
+                </button>
+                <button onclick="showContent('orders')" class="menu-item w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors text-slate-300 hover:bg-slate-700 hover:text-white">
+                    <i class="fas fa-shopping-cart w-5"></i>
+                    <span>Orders</span>
+                </button>
+                <button onclick="showContent('customers')" class="menu-item w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors text-slate-300 hover:bg-slate-700 hover:text-white">
+                    <i class="fas fa-users w-5"></i>
+                    <span>Customers</span>
+                </button>
+                <button onclick="showContent('purchase')" class="menu-item w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors text-slate-300 hover:bg-slate-700 hover:text-white">
+                    <i class="fas fa-shopping-bag w-5"></i>
+                    <span>Purchase</span>
+                </button>
+                <button onclick="showContent('reporting')" class="menu-item w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors text-slate-300 hover:bg-slate-700 hover:text-white">
+                    <i class="fas fa-chart-line w-5"></i>
+                    <span>Reporting</span>
+                </button>
+                <button onclick="showContent('settings')" class="menu-item w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors text-slate-300 hover:bg-slate-700 hover:text-white">
+                    <i class="fas fa-cog w-5"></i>
+                    <span>Settings</span>
+                </button>
+            </nav>
+
+            <button class="w-full flex items-center space-x-3 px-3 py-2 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition-colors mt-8">
+                <i class="fas fa-sign-out-alt w-5"></i>
+                <span>Logout</span>
+            </button>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 p-6">
+            <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h1 class="text-3xl font-bold text-slate-800 mb-2" id="main-title">Dashboard Management</h1>
+                        <h2 class="text-xl text-slate-600">Welcome Harshita !</h2>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="relative">
+                            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            <input type="text" placeholder="Search" class="pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <i class="fas fa-bell text-gray-600 cursor-pointer"></i>
+                        <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                            <span class="text-white text-sm font-medium">H</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dashboard Section -->
+                <div id="content-dashboard" class="content-section active">
+                    <h3 class="text-lg font-semibold text-slate-700 mb-4">Overview</h3>
+                    <div class="grid grid-cols-4 gap-4 mb-8">
+                        <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                            <div class="flex items-center space-x-2 mb-2">
+                                <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-box text-white text-sm"></i>
+                                </div>
+                                <span class="text-green-700 font-medium text-xl" id="total-products-count">0</span>
+                            </div>
+                            <p class="text-sm text-slate-600">Total Products</p>
+                        </div>
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                            <div class="flex items-center space-x-2 mb-2">
+                                <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-shopping-cart text-white text-sm"></i>
+                                </div>
+                                <span class="text-blue-700 font-medium text-xl" id="orders-count">0</span>
+                            </div>
+                            <p class="text-sm text-slate-600">Total Orders</p>
+                        </div>
+                        <div class="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                            <div class="flex items-center space-x-2 mb-2">
+                                <div class="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-chart-line text-white text-sm"></i>
+                                </div>
+                                <span class="text-orange-700 font-medium text-xl" id="total-stock-count">0</span>
+                            </div>
+                            <p class="text-sm text-slate-600">Total Stock</p>
+                        </div>
+                        <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                            <div class="flex items-center space-x-2 mb-2">
+                                <div class="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-exclamation-triangle text-white text-sm"></i>
+                                </div>
+                                <span class="text-red-700 font-medium text-xl" id="out-of-stock-count">0</span>
+                            </div>
+                            <p class="text-sm text-slate-600">Low Stock Items</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-3 gap-6">
+                        <div class="space-y-6">
+                            <div class="bg-slate-50 rounded-lg p-4">
+                                <h4 class="font-semibold text-slate-700 mb-3 flex items-center">
+                                    No of customers
+                                    <i class="fas fa-question-circle ml-2 text-slate-400"></i>
+                                </h4>
+                                <div class="flex items-center space-x-2">
+                                    <i class="fas fa-users text-slate-600 text-2xl"></i>
+                                    <div>
+                                        <div class="text-2xl font-bold text-slate-800" id="customer-count">0</div>
+                                        <div class="text-sm text-slate-500">Total Customers</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-slate-50 rounded-lg p-4">
+                                <h4 class="font-semibold text-slate-700 mb-3">Inventory Values</h4>
+                                <div class="flex items-center space-x-4">
+                                    <div class="relative w-24 h-24">
+                                        <canvas id="inventoryChart" width="96" height="96"></canvas>
+                                        <div class="absolute inset-0 flex items-center justify-center">
+                                            <span class="text-sm font-semibold" id="inventory-percentage">0%</span>
+                                        </div>
+                                    </div>
+                                    <div class="space-y-2">
+                                        <div class="flex items-center space-x-2">
+                                            <div class="w-3 h-3 bg-green-500 rounded"></div>
+                                            <span class="text-sm text-slate-600">In Stock</span>
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            <div class="w-3 h-3 bg-red-500 rounded"></div>
+                                            <span class="text-sm text-slate-600">Low Stock</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-slate-50 rounded-lg p-4">
+                            <div class="flex justify-between items-center mb-4">
+                                <h4 class="font-semibold text-slate-700">Sales Overview</h4>
+                                <span class="text-sm text-slate-500">Last 7 days</span>
+                            </div>
+                            <div class="h-48">
+                                <canvas id="salesChart"></canvas>
+                            </div>
+                            <div class="flex space-x-4 mt-2">
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-3 h-3 bg-blue-500 rounded"></div>
+                                    <span class="text-sm text-slate-600">Sales</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-3 h-3 bg-green-500 rounded"></div>
+                                    <span class="text-sm text-slate-600">Orders</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-slate-50 rounded-lg p-4">
+                            <h4 class="font-semibold text-slate-700 mb-4">Top Selling Products</h4>
+                            <div class="space-y-3" id="topProductsList">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Inventory Section -->
+                <div id="content-inventory" class="content-section">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold text-slate-700">Inventory Management</h3>
+                        <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center" onclick="openProductModal()">
+                            <i class="fas fa-plus mr-2"></i>Add Product
+                        </button>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product Name</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SKU</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200" id="inventory-table-body">
+                                <tr>
+                                    <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                                        <div class="loading mx-auto"></div>
+                                        <span class="ml-2">Loading inventory...</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Orders Section -->
+                <div id="content-orders" class="content-section">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold text-slate-700">Orders Management</h3>
+                        <button class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center" onclick="openOrderModal()">
+                            <i class="fas fa-plus mr-2"></i>Create Order
+                        </button>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Amount</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200" id="orders-table-body">
+                                <tr>
+                                    <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                                        <div class="loading mx-auto"></div>
+                                        <span class="ml-2">Loading orders...</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Customers Section -->
+                <div id="content-customers" class="content-section">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold text-slate-700">Customer Management</h3>
+                        <button class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center" onclick="openCustomerModal()">
+                            <i class="fas fa-plus mr-2"></i>Add Customer
+                        </button>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Address</th>
+                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200" id="customers-table-body">
+                                <tr>
+                                    <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                                        <div class="loading mx-auto"></div>
+                                        <span class="ml-2">Loading customers...</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Purchase Section -->
+                <div id="content-purchase" class="content-section">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold text-slate-700">Purchase Orders</h3>
+                        <button class="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors flex items-center" onclick="openPurchaseModal()">
+                            <i class="fas fa-plus mr-2"></i>Create Purchase Order
+                        </button>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Purchase ID</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Supplier</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Amount</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200" id="purchase-table-body">
+                                <tr>
+                                    <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                                        <div class="loading mx-auto"></div>
+                                        <span class="ml-2">Loading purchases...</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Reporting Section -->
+                <div id="content-reporting" class="content-section">
+                    <h3 class="text-lg font-semibold text-slate-700 mb-4">Sales Reports</h3>
+                    <div class="grid grid-cols-2 gap-6 mb-6">
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <h4 class="text-lg font-semibold mb-4">Sales Summary</h4>
+                            <div class="space-y-3" id="salesSummary">
+                                <div class="flex justify-between">
+                                    <span>Total Sales:</span>
+                                    <span class="font-semibold" id="totalSales">$0.00</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Total Orders:</span>
+                                    <span class="font-semibold" id="totalOrdersReport">0</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Average Order Value:</span>
+                                    <span class="font-semibold" id="avgOrderValue">$0.00</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <h4 class="text-lg font-semibold mb-4">Top Products</h4>
+                            <div id="topProductsReport">
+                                <div class="loading mx-auto"></div>
+                                <span class="ml-2">Loading reports...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Section -->
+                <div id="content-settings" class="content-section">
+                    <h3 class="text-lg font-semibold text-slate-700 mb-4">System Settings</h3>
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Store Name</label>
+                                <input type="text" class="w-full border rounded-lg px-3 py-2" value="Harshita's Grocery Store" readonly>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Store Address</label>
+                                <textarea class="w-full border rounded-lg px-3 py-2" rows="3" readonly>H no. P-270 Main 30ft road, shiv vihar, delhi 110094</textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Contact Email</label>
+                                <input type="email" class="w-full border rounded-lg px-3 py-2" value="mundeyharshita@gmail.com" readonly>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Low Stock Threshold</label>
+                                <input type="number" class="w-full border rounded-lg px-3 py-2" value="10" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Modal -->
+    <div id="productModal" class="modal">
+        <div class="bg-white rounded-lg p-6 w-96">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold" id="productModalTitle">Add Product</h3>
+                <button onclick="closeProductModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="productForm" onsubmit="handleProductSubmit(event)">
+                <input type="hidden" id="productId" value="">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Product Name</label>
+                        <input type="text" id="productName" class="w-full border rounded-lg px-3 py-2" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">SKU</label>
+                        <input type="text" id="productSku" class="w-full border rounded-lg px-3 py-2" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                        <input type="text" id="productCategory" class="w-full border rounded-lg px-3 py-2" required>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Price</label>
+                            <input type="number" step="0.01" id="productPrice" class="w-full border rounded-lg px-3 py-2" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Stock</label>
+                            <input type="number" id="productStock" class="w-full border rounded-lg px-3 py-2" required>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Min Stock</label>
+                            <input type="number" id="productMinStock" class="w-full border rounded-lg px-3 py-2" value="10">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Supplier</label>
+                            <input type="text" id="productSupplier" class="w-full border rounded-lg px-3 py-2">
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-2 mt-6">
+                    <button type="button" onclick="closeProductModal()" class="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        Save Product
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // API Configuration
+        const API_BASE_URL = 'http://localhost:3000/api';
+
+        // Global variables
+        let currentProducts = [];
+        let currentCustomers = [];
+        let currentOrders = [];
+
+        // API Helper Function
+        async function apiCall(endpoint, method = 'GET', data = null) {
+            try {
+                const options = {
+                    method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                };
+                if (data) {
+                    options.body = JSON.stringify(data);
+                }
+                
+                const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('API call failed:', error);
+                showNotification('Failed to connect to server. Please check if the server is running.', 'error');
+                return null;
+            }
+        }
+
+        // Notification System
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            const bgColor = type === 'error' ? 'bg-red-500' : type === 'success' ? 'bg-green-500' : 'bg-blue-500';
+            notification.className = `fixed top-4 right-4 ${bgColor} text-white px-4 py-2 rounded-lg shadow-lg z-50 transform transition-transform duration-300`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.transform = 'translateX(400px)';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Navigation Functions
+        function showContent(menuId) {
+            // Update menu items
+            document.querySelectorAll('.menu-item').forEach(item => {
+                item.classList.remove('bg-slate-700', 'text-white');
+                item.classList.add('text-slate-300');
+            });
+
+            const clickedMenuItem = document.querySelector(`.menu-item[onclick="showContent('${menuId}')"]`);
+            clickedMenuItem.classList.remove('text-slate-300');
+            clickedMenuItem.classList.add('bg-slate-700', 'text-white');
+
+            // Update content sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(`content-${menuId}`).classList.add('active');
+
+            // Update titles
+            const sectionName = clickedMenuItem.textContent.trim();
+            document.getElementById('page-title').textContent = sectionName;
+            document.getElementById('main-title').textContent = `${sectionName} Management`;
+
+            // Load section data
+            loadSectionData(menuId);
+        }
+
+        async function loadSectionData(section) {
+            switch (section) {
+                case 'dashboard':
+                    await loadDashboardData();
+                    break;
+                case 'inventory':
+                    await loadInventoryData();
+                    break;
+                case 'orders':
+                    await loadOrdersData();
+                    break;
+                case 'customers':
+                    await loadCustomersData();
+                    break;
+                case 'purchase':
+                    await loadPurchaseData();
+                    break;
+                case 'reporting':
+                    await loadReportingData();
+                    break;
+            }
+        }
+
+        // Dashboard Functions
+        async function loadDashboardData() {
+            const overviewData = await apiCall('/dashboard/overview');
+            if (overviewData) {
+                document.getElementById('total-products-count').textContent = overviewData.totalProducts || '0';
+                document.getElementById('orders-count').textContent = overviewData.totalOrders || '0';
+                document.getElementById('total-stock-count').textContent = overviewData.totalStock || '0';
+                document.getElementById('out-of-stock-count').textContent = overviewData.outOfStock || '0';
+                document.getElementById('customer-count').textContent = overviewData.totalCustomers || '0';
+                
+                // Update inventory chart
+                updateInventoryChart(overviewData.totalStock, overviewData.outOfStock);
+            }
+
+            const salesData = await apiCall('/dashboard/sales-data');
+            if (salesData) {
+                updateTopProductsList(salesData.slice(0, 5));
+            }
+
+            initializeCharts();
+        }
+
+        function updateInventoryChart(totalStock, outOfStock) {
+            const inStock = totalStock - outOfStock;
+            const percentage = totalStock > 0 ? Math.round((inStock / totalStock) * 100) : 0;
+            document.getElementById('inventory-percentage').textContent = `${percentage}%`;
+        }
+
+        function updateTopProductsList(products) {
+            const list = document.getElementById('topProductsList');
+            list.innerHTML = '';
+            products.forEach((product, index) => {
+                const item = document.createElement('div');
+                item.className = 'flex items-center justify-between py-2';
+                item.innerHTML = `
+                    <div class="flex items-center space-x-2">
+                        <span class="w-6 h-6 bg-blue-100 text-blue-600 text-xs rounded-full flex items-center justify-center font-medium">${index + 1}</span>
+                        <span class="text-sm text-slate-600">${product.name}</span>
+                    </div>
+                    <span class="text-xs text-slate-500">${product.percentage}%</span>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        // Inventory Functions
+        async function loadInventoryData() {
+            const products = await apiCall('/products');
+            if (products) {
+                currentProducts = products;
+                renderInventoryTable(products);
+            }
+        }
+
+        function renderInventoryTable(products) {
+            const tableBody = document.getElementById('inventory-table-body');
+            tableBody.innerHTML = '';
+
+            if (products.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                            No products found. Click "Add Product" to get started.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            products.forEach(product => {
+                const row = document.createElement('tr');
+                const isLowStock = product.stock <= (product.min_stock || 10);
+                const stockClass = isLowStock ? 'text-red-600 font-semibold' : 'text-green-600';
+                
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${product.name}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${product.sku}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${product.category || 'N/A'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm ${stockClass}">${product.stock}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${parseFloat(product.price).toFixed(2)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button onclick="editProduct(${product.id})" class="text-indigo-600 hover:text-indigo-900 mr-3">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button onclick="deleteProduct(${product.id})" class="text-red-600 hover:text-red-900">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Product Modal Functions
+        function openProductModal(productId = null) {
+            const modal = document.getElementById('productModal');
+            const form = document.getElementById('productForm');
+            const title = document.getElementById('productModalTitle');
+
+            form.reset();
+            
+            if (productId) {
+                title.textContent = 'Edit Product';
+                const product = currentProducts.find(p => p.id === productId);
+                if (product) {
+                    document.getElementById('productId').value = product.id;
+                    document.getElementById('productName').value = product.name;
+                    document.getElementById('productSku').value = product.sku;
+                    document.getElementById('productCategory').value = product.category || '';
+                    document.getElementById('productPrice').value = product.price;
+                    document.getElementById('productStock').value = product.stock;
+                    document.getElementById('productMinStock').value = product.min_stock || 10;
+                    document.getElementById('productSupplier').value = product.supplier || '';
+                }
+            } else {
+                title.textContent = 'Add Product';
+                document.getElementById('productId').value = '';
+            }
+
+            modal.classList.add('show');
+        }
+
+        function closeProductModal() {
+            document.getElementById('productModal').classList.remove('show');
+        }
+
+        async function handleProductSubmit(event) {
+            event.preventDefault();
+            
+            const productData = {
+                name: document.getElementById('productName').value,
+                sku: document.getElementById('productSku').value,
+                category: document.getElementById('productCategory').value,
+                price: parseFloat(document.getElementById('productPrice').value),
+                stock: parseInt(document.getElementById('productStock').value),
+                min_stock: parseInt(document.getElementById('productMinStock').value) || 10,
+                supplier: document.getElementById('productSupplier').value
+            };
+
+            const productId = document.getElementById('productId').value;
+            const isEdit = productId !== '';
+            
+            const result = await apiCall(
+                isEdit ? `/products/${productId}` : '/products',
+                isEdit ? 'PUT' : 'POST',
+                productData
+            );
+
+            if (result) {
+                showNotification(isEdit ? 'Product updated successfully!' : 'Product added successfully!', 'success');
+                closeProductModal();
+                await loadInventoryData();
+                await loadDashboardData(); // Refresh dashboard stats
+            }
+        }
+
+        function editProduct(productId) {
+            openProductModal(productId);
+        }
+
+        async function deleteProduct(productId) {
+            if (!confirm('Are you sure you want to delete this product? This action cannot be undone.')) {
+                return;
+            }
+
+            const result = await apiCall(`/products/${productId}`, 'DELETE');
+            if (result) {
+                showNotification('Product deleted successfully!', 'success');
+                await loadInventoryData();
+                await loadDashboardData();
+            }
+        }
+
+        // Orders Functions
+        async function loadOrdersData() {
+            const orders = await apiCall('/orders');
+            if (orders) {
+                currentOrders = orders;
+                renderOrdersTable(orders);
+            }
+        }
+
+        function renderOrdersTable(orders) {
+            const tableBody = document.getElementById('orders-table-body');
+            tableBody.innerHTML = '';
+
+            if (orders.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                            No orders found. Click "Create Order" to get started.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            orders.forEach(order => {
+                const row = document.createElement('tr');
+                const statusClass = order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 
+                                  order.status === 'completed' ? 'bg-green-100 text-green-800' : 
+                                  'bg-gray-100 text-gray-800';
+                
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#${order.id}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${order.customer_name || 'N/A'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${parseFloat(order.total_amount).toFixed(2)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 py-1 text-xs font-semibold rounded-full ${statusClass}">
+                            ${order.status}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${new Date(order.order_date).toLocaleDateString()}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button onclick="viewOrder(${order.id})" class="text-blue-600 hover:text-blue-900 mr-3">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button onclick="deleteOrder(${order.id})" class="text-red-600 hover:text-red-900">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Customers Functions
+        async function loadCustomersData() {
+            const customers = await apiCall('/customers');
+            if (customers) {
+                currentCustomers = customers;
+                renderCustomersTable(customers);
+            }
+        }
+
+        function renderCustomersTable(customers) {
+            const tableBody = document.getElementById('customers-table-body');
+            tableBody.innerHTML = '';
+
+            if (customers.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                            No customers found. Click "Add Customer" to get started.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            customers.forEach(customer => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${customer.name}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${customer.email || 'N/A'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${customer.phone || 'N/A'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${customer.address || 'N/A'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button onclick="editCustomer(${customer.id})" class="text-indigo-600 hover:text-indigo-900 mr-3">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button onclick="deleteCustomer(${customer.id})" class="text-red-600 hover:text-red-900">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Purchase Functions
+        async function loadPurchaseData() {
+            const purchases = await apiCall('/purchases');
+            if (purchases) {
+                renderPurchaseTable(purchases);
+            }
+        }
+
+        function renderPurchaseTable(purchases) {
+            const tableBody = document.getElementById('purchase-table-body');
+            tableBody.innerHTML = '';
+
+            if (purchases.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                            No purchase orders found. Click "Create Purchase Order" to get started.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            purchases.forEach(purchase => {
+                const row = document.createElement('tr');
+                const statusClass = purchase.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 
+                                  purchase.status === 'completed' ? 'bg-green-100 text-green-800' : 
+                                  'bg-gray-100 text-gray-800';
+                
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#${purchase.id}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${purchase.supplier}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${parseFloat(purchase.total_amount).toFixed(2)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 py-1 text-xs font-semibold rounded-full ${statusClass}">
+                            ${purchase.status}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${new Date(purchase.purchase_date).toLocaleDateString()}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button onclick="viewPurchase(${purchase.id})" class="text-blue-600 hover:text-blue-900 mr-3">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button onclick="deletePurchase(${purchase.id})" class="text-red-600 hover:text-red-900">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Reporting Functions
+        async function loadReportingData() {
+            const reportData = await apiCall('/reports/sales');
+            if (reportData) {
+                document.getElementById('totalSales').textContent = `${reportData.totalSales?.toFixed(2) || '0.00'}`;
+                document.getElementById('totalOrdersReport').textContent = reportData.totalOrders || '0';
+                document.getElementById('avgOrderValue').textContent = `${reportData.averageOrderValue?.toFixed(2) || '0.00'}`;
+                
+                updateTopProductsReport(reportData.topProducts || []);
+            }
+        }
+
+        function updateTopProductsReport(products) {
+            const container = document.getElementById('topProductsReport');
+            container.innerHTML = '';
+            
+            if (products.length === 0) {
+                container.innerHTML = '<p class="text-gray-500">No sales data available</p>';
+                return;
+            }
+            
+            products.forEach((product, index) => {
+                const item = document.createElement('div');
+                item.className = 'flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0';
+                item.innerHTML = `
+                    <div class="flex items-center space-x-2">
+                        <span class="w-6 h-6 bg-blue-100 text-blue-600 text-xs rounded-full flex items-center justify-center font-medium">${index + 1}</span>
+                        <span class="text-sm">${product.name}</span>
+                    </div>
+                    <span class="text-xs text-gray-500">${product.revenue?.toFixed(2) || '0.00'}</span>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        // Chart Initialization
+        function initializeCharts() {
+            // Inventory Chart
+            const inventoryCtx = document.getElementById('inventoryChart').getContext('2d');
+            new Chart(inventoryCtx, {
+                type: 'doughnut',
+                data: {
+                    datasets: [{
+                        data: [75, 25],
+                        backgroundColor: ['#10b981', '#ef4444'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '60%',
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            // Sales Chart
+            const salesCtx = document.getElementById('salesChart').getContext('2d');
+            new Chart(salesCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Sales',
+                        data: [1200, 1900, 3000, 5000, 2300, 3400, 4100],
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }, {
+                        label: 'Orders',
+                        data: [10, 15, 25, 40, 18, 28, 35],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: '#e2e8f0' } },
+                        x: { grid: { color: '#e2e8f0' } }
+                    }
+                }
+            });
+        }
+
+        // Placeholder functions for modal operations
+        function openOrderModal() {
+            showNotification('Order creation modal coming soon!', 'info');
+        }
+
+        function openCustomerModal() {
+            showNotification('Customer creation modal coming soon!', 'info');
+        }
+
+        function openPurchaseModal() {
+            showNotification('Purchase order modal coming soon!', 'info');
+        }
+
+        function viewOrder(orderId) {
+            showNotification(`Viewing order #${orderId}`, 'info');
+        }
+
+        function deleteOrder(orderId) {
+            showNotification('Order deletion coming soon!', 'info');
+        }
+
+        function editCustomer(customerId) {
+            showNotification('Customer editing coming soon!', 'info');
+        }
+
+        function deleteCustomer(customerId) {
+            showNotification('Customer deletion coming soon!', 'info');
+        }
+
+        function viewPurchase(purchaseId) {
+            showNotification(`Viewing purchase #${purchaseId}`, 'info');
+        }
+
+        function deletePurchase(purchaseId) {
+            showNotification('Purchase deletion coming soon!', 'info');
+        }
+
+        // Initialize Application
+        window.addEventListener('DOMContentLoaded', async () => {
+            console.log('🚀 Initializing Grocery Store Management System...');
+            
+            // Test API connection
+            const testConnection = await apiCall('/products');
+            if (testConnection) {
+                console.log('✅ API connection successful!');
+                showNotification('Connected to server successfully!', 'success');
+            } else {
+                console.log('❌ API connection failed!');
+                showNotification('Failed to connect to server. Please ensure the server is running on port 3000.', 'error');
+            }
+            
+            // Load initial dashboard
+            showContent('dashboard');
+        });
+    </script>
+</body>
+</html>
